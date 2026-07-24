@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spark IDE</title>
+
+  <link rel="icon" type="image/png" href="assets/logos/SparkLogoRounded.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Динамическая тема из settings.json -->
+  <style id="dynamic-theme"></style>
+</head>
+
+<body>
+
+  <header>
+    <button class="icon-btn ghost" id="sidebarToggle" title="Проводник (Ctrl+B)"><i
+        class="ri-side-bar-line"></i></button>
+
+    <div class="logo">
+      <img src="assets/logos/SparkLogoText.png" alt="Spark IDE" class="logo-img" style="height: 20px;">
+    </div>
+
+    <div class="actions">
+      <!-- Управление темами и проектами -->
+      <button class="icon-btn ghost" id="themeToggle" title="Сменить тему (Default)"><i
+          class="ri-sun-line"></i></button>
+      <div class="divider"></div>
+
+      <button class="icon-btn ghost" id="newProjectBtn" title="Новый проект"><i class="ri-file-add-line"></i></button>
+      <button class="icon-btn ghost" id="openProjectBtn" title="Открыть проект из ZIP"><i
+          class="ri-folder-open-line"></i></button>
+      <input type="file" id="importProjectInput" accept=".zip" style="display:none">
+      <button class="icon-btn ghost" id="saveProjectBtn" title="Сохранено (Автосохранение)"><i
+          class="ri-save-3-line"></i></button>
+
+      <div class="divider"></div>
+
+      <button class="icon-btn ghost" id="formatBtn" title="Форматировать код (Shift+Alt+F)"><i
+          class="ri-magic-line"></i>Формат</button>
+      <button class="icon-btn ghost" id="previewToggle" title="Показать/скрыть предпросмотр (Ctrl+/)">
+        <i class="ri-layout-right-line"></i>
+      </button>
+      <div class="divider"></div>
+      <button id="runBtn" class="primary"><i class="ri-play-fill"></i>Запустить</button>
+      <div class="dl-group">
+        <button id="downloadBtn"><i class="ri-download-2-line"></i>Экспорт</button>
+        <button id="downloadCaret" class="dl-caret" title="Другие варианты экспорта"><i
+            class="ri-arrow-down-s-line"></i></button>
+        <div class="dl-menu" id="dlMenu">
+          <div class="dl-item" id="exportSiteItem"><i class="ri-global-line"></i>Скачать сайт (html+css+js)</div>
+          <div class="dl-item" id="exportProjectItem"><i class="ri-folder-zip-line"></i>Сохранить проект (.zip)</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="mainGrid">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-head">
+        <span><i class="ri-folder-3-line"></i>Проводник</span>
+        <div class="sidebar-tools">
+          <button class="icon-btn" id="newFileBtn" title="Новый файл"><i class="ri-file-add-line"></i></button>
+          <button class="icon-btn" id="newFolderBtn" title="Новая папка"><i class="ri-folder-add-line"></i></button>
+          <button class="icon-btn" id="uploadResourceBtn" title="Загрузить ресурс (картинку)"><i
+              class="ri-upload-2-line"></i></button>
+          <input type="file" id="uploadResourceInput" multiple style="display:none">
+        </div>
+      </div>
+      <div class="tree" id="tree"></div>
+    </aside>
+
+    <div class="editor-col" id="editorCol">
+      <div class="tabbar" id="tabbar"></div>
+      <div class="code-wrap" id="codeWrap">
+        <div class="gutter" id="gutter"></div>
+        <div class="editor-container" id="editorContainer">
+          <pre id="highlightArea" aria-hidden="true"><code></code></pre>
+          <textarea id="editorArea" spellcheck="false"></textarea>
+        </div>
+
+        <!-- Просмотрщик картинок -->
+        <div class="image-preview" id="imagePreviewContainer">
+          <img id="imagePreviewTag" src="" alt="Preview">
+          <p id="imagePreviewName" class="img-name"></p>
+        </div>
+
+        <div class="empty-state" id="emptyState">
+          <i class="ri-file-list-3-line"></i>
+          <p>Выберите файл слева, чтобы начать редактирование</p>
+        </div>
+      </div>
+      <div class="errbar" id="errbar"></div>
+    </div>
+
+    <div class="resizer" id="resizer"></div>
+
+    <div class="preview-col" id="previewCol">
+      <div class="preview-bar">
+        <i class="ri-eye-line"></i>Предпросмотр
+        <span class="live-dot" aria-hidden="true"></span>
+      </div>
+      <iframe id="preview"></iframe>
+    </div>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+
+</html>
