@@ -14,6 +14,7 @@
     rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://js.puter.com/v2/"></script>
 
   <link rel="stylesheet" href="css/styles.css">
 
@@ -32,6 +33,14 @@
     </div>
 
     <div class="actions">
+      <button class="icon-btn ghost" id="globalSearchBtn" title="Поиск по проекту (Ctrl+Shift+F)"><i
+          class="ri-search-line"></i></button>
+      <button class="icon-btn ghost" id="commandPaletteBtn" title="Палитра команд (Ctrl+Shift+P)"><i
+          class="ri-terminal-box-line"></i></button>
+      <button class="icon-btn ghost" id="aiAssistantBtn" title="ИИ-помощник (Ctrl+Shift+A)"><i
+          class="ri-sparkling-2-line"></i></button>
+      <div class="divider"></div>
+
       <!-- Управление темами и проектами -->
       <button class="icon-btn ghost" id="themeToggle" title="Сменить тему (Default)"><i
           class="ri-sun-line"></i></button>
@@ -82,11 +91,35 @@
 
     <div class="editor-col" id="editorCol">
       <div class="tabbar" id="tabbar"></div>
+      <div class="breadcrumb" id="breadcrumb"></div>
       <div class="code-wrap" id="codeWrap">
         <div class="gutter" id="gutter"></div>
         <div class="editor-container" id="editorContainer">
           <pre id="highlightArea" aria-hidden="true"><code></code></pre>
-          <textarea id="editorArea" spellcheck="false"></textarea>
+          <textarea id="editorArea" spellcheck="false" title="Автокомплит: Ctrl+Space"></textarea>
+        </div>
+
+        <!-- Панель поиска и замены -->
+        <div class="find-panel" id="findPanel">
+          <div class="find-row">
+            <i class="ri-search-line"></i>
+            <input type="text" id="findInput" placeholder="Найти" autocomplete="off">
+            <span class="find-count" id="findCount"></span>
+            <button class="icon-btn find-icon-btn" id="findCaseBtn" title="Учитывать регистр"><i
+                class="ri-font-size"></i></button>
+            <button class="icon-btn find-icon-btn" id="findPrevBtn" title="Предыдущее (Shift+Enter)"><i
+                class="ri-arrow-up-line"></i></button>
+            <button class="icon-btn find-icon-btn" id="findNextBtn" title="Следующее (Enter)"><i
+                class="ri-arrow-down-line"></i></button>
+            <button class="icon-btn find-icon-btn" id="findCloseBtn" title="Закрыть (Esc)"><i
+                class="ri-close-line"></i></button>
+          </div>
+          <div class="find-row replace-row">
+            <i class="ri-find-replace-line"></i>
+            <input type="text" id="replaceInput" placeholder="Заменить на" autocomplete="off">
+            <button class="find-text-btn" id="replaceOneBtn">Заменить</button>
+            <button class="find-text-btn" id="replaceAllBtn">Заменить всё</button>
+          </div>
         </div>
 
         <!-- Просмотрщик картинок -->
@@ -101,6 +134,21 @@
         </div>
       </div>
       <div class="errbar" id="errbar"></div>
+      <div class="status-bar" id="statusBar">
+        <span class="status-left">
+          <i class="ri-flashlight-line"></i>
+          <span id="statusFile">Нет открытого файла</span>
+          <span id="statusEntry"></span>
+        </span>
+        <span class="status-right">
+          <span id="statusPos"></span>
+          <button class="status-zoom-btn" id="zoomOutBtn" title="Уменьшить шрифт (Ctrl+-)"><i
+              class="ri-zoom-out-line"></i></button>
+          <span id="statusZoom">100%</span>
+          <button class="status-zoom-btn" id="zoomInBtn" title="Увеличить шрифт (Ctrl+=)"><i
+              class="ri-zoom-in-line"></i></button>
+        </span>
+      </div>
     </div>
 
     <div class="resizer" id="resizer"></div>
@@ -114,7 +162,72 @@
     </div>
   </main>
 
-  <script src="js/app.js"></script>
+  <!-- Палитра команд -->
+  <div class="modal-overlay" id="commandPalette">
+    <div class="palette-box">
+      <div class="palette-input-row">
+        <i class="ri-terminal-box-line"></i>
+        <input type="text" id="paletteInput" placeholder="Введите команду…" autocomplete="off">
+      </div>
+      <div class="palette-list" id="paletteList"></div>
+    </div>
+  </div>
+
+  <!-- Глобальный поиск по проекту -->
+  <div class="modal-overlay" id="globalSearchModal">
+    <div class="gs-box">
+      <div class="gs-input-row">
+        <i class="ri-search-line"></i>
+        <input type="text" id="globalSearchInput" placeholder="Поиск по всем файлам проекта…" autocomplete="off">
+        <button class="icon-btn" id="globalSearchCloseBtn" title="Закрыть (Esc)"><i class="ri-close-line"></i></button>
+      </div>
+      <div class="gs-results" id="globalSearchResults"></div>
+    </div>
+  </div>
+
+  <!-- ИИ-помощник -->
+  <div class="modal-overlay" id="aiAssistantModal">
+    <div class="ai-box">
+      <div class="ai-header">
+        <span><i class="ri-sparkling-2-line"></i>ИИ-помощник<span class="ai-badge">бесплатно · Puter.js</span></span>
+        <div class="ai-header-actions">
+          <button class="icon-btn" id="aiExportBtn" title="Экспортировать диалог (.md)"><i class="ri-download-2-line"></i></button>
+          <button class="icon-btn" id="aiClearBtn" title="Очистить диалог"><i class="ri-delete-bin-line"></i></button>
+          <button class="icon-btn" id="aiCloseBtn" title="Закрыть (Esc)"><i class="ri-close-line"></i></button>
+        </div>
+      </div>
+      <div class="ai-messages" id="aiMessages">
+        <div class="ai-empty">
+          <i class="ri-sparkling-2-line"></i>
+          <p>Спросите про Spark-синтаксис, попросите написать компонент или объяснить ошибку компиляции.</p>
+        </div>
+      </div>
+      <div class="ai-input-row">
+        <label class="ai-context-toggle" title="Приложить содержимое открытого файла к вопросу">
+          <input type="checkbox" id="aiIncludeContext" checked>
+          <span>Файл в контексте</span>
+        </label>
+        <textarea id="aiInput" rows="1" placeholder="Спросите что-нибудь…"></textarea>
+        <button class="icon-btn" id="aiSendBtn" title="Отправить (Enter)"><i class="ri-send-plane-2-line"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/compiler.js"></script>
+  <script src="js/vfs.js"></script>
+  <script src="js/file-tree.js"></script>
+  <script src="js/syntax-highlight.js"></script>
+  <script src="js/editor-tabs.js"></script>
+  <script src="js/autocomplete.js"></script>
+  <script src="js/status-bar.js"></script>
+  <script src="js/import-export.js"></script>
+  <script src="js/dev-console.js"></script>
+  <script src="js/find-replace.js"></script>
+  <script src="js/global-search.js"></script>
+  <script src="js/command-palette.js"></script>
+  <script src="js/ai-assistant.js"></script>
+  <script src="js/resizer-shortcuts.js"></script>
+  <script src="js/main.js"></script>
 </body>
 
 </html>
